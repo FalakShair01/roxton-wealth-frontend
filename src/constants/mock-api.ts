@@ -4,6 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { matchSorter } from 'match-sorter'; // For filtering
+import { MOCK_CLIENTS } from './mock-clients';
 
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -69,14 +70,15 @@ export const fakeProducts = {
     categories?: string[];
     search?: string;
   }) {
-    let products = [...this.records];
+    // let products = [...this.records];
+    let products = [...MOCK_CLIENTS];
 
     // Filter products based on selected categories
-    if (categories.length > 0) {
-      products = products.filter((product) =>
-        categories.includes(product.category)
-      );
-    }
+    // if (categories.length > 0) {
+    //   products = products.filter((product) =>
+    //     categories.includes(product.category)
+    //   );
+    // }
 
     // Search functionality across multiple fields
     if (search) {

@@ -9,22 +9,33 @@ import {
   CardFooter
 } from '@/components/ui/card';
 import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
-import React from 'react';
+// import { buttonVariants } from '@/components/ui/button';
+// import { Heading } from '@/components/ui/heading';
+import { Separator } from '@/components/ui/separator';
+import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
+import ProductListingPage from '@/features/products/components/product-listing';
+import { searchParamsCache, serialize } from '@/lib/searchparams';
+// import { cn } from '@/lib/utils';
+// import { IconPlus } from '@tabler/icons-react';
+// import Link from 'next/link';
+import { SearchParams } from 'nuqs/server';
+import { Suspense } from 'react';
 
-export default function OverViewLayout({
-  sales,
-  pie_stats,
-  bar_stats,
-  area_stats
-}: {
-  sales: React.ReactNode;
-  pie_stats: React.ReactNode;
-  bar_stats: React.ReactNode;
-  area_stats: React.ReactNode;
-}) {
+export const metadata = {
+  title: 'Dashboard: Client'
+};
+
+type pageProps = {
+  searchParams: Promise<SearchParams>;
+};
+
+export default async function Page(props: pageProps) {
+  const searchParams = await props.searchParams;
+  searchParamsCache.parse(searchParams);
+
   return (
-    <PageContainer>
-      <div className='flex flex-1 flex-col space-y-2'>
+    <PageContainer scrollable={false}>
+      <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-center justify-between space-y-2'>
           <h2 className='text-2xl font-bold tracking-tight'>
             Hi, Welcome back 👋
@@ -122,15 +133,26 @@ export default function OverViewLayout({
             </CardFooter>
           </Card>
         </div>
-        <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7'>
-          {/* <div className='col-span-4'>{bar_stats}</div> */}
-          {/* <div className='col-span-4 md:col-span-3'>
-            sales arallel routes
-            {sales}
-          </div> */}
-          {/* <div className='col-span-4'>{area_stats}</div> */}
-          <div className='col-span-4 md:col-span-3'>{pie_stats}</div>
-        </div>
+        {/* <div className='flex items-start justify-between'>
+          <Heading
+            title='Client'
+            description='Manage Clients (Server side table functionalities.)'
+          />
+          <Link
+            href='/dashboard/client/new'
+            className={cn(buttonVariants(), 'text-xs md:text-sm')}
+          >
+            <IconPlus className='mr-2 h-4 w-4' /> Add New
+          </Link>
+        </div> */}
+        <Separator />
+        <Suspense
+          fallback={
+            <DataTableSkeleton columnCount={5} rowCount={8} filterCount={2} />
+          }
+        >
+          <ProductListingPage />
+        </Suspense>
       </div>
     </PageContainer>
   );

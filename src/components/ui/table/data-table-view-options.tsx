@@ -1,6 +1,9 @@
 'use client';
 
 import type { Table } from '@tanstack/react-table';
+import { buttonVariants } from '@/components/ui/button';
+import Link from 'next/link';
+import { IconPlus } from '@tabler/icons-react';
 import { Settings2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -41,8 +44,15 @@ export function DataTableViewOptions<TData>({
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button
+      {/* <PopoverTrigger asChild> */}
+      <Link
+        href='/dashboard/client/add'
+        className={cn(buttonVariants(), 'text-xs md:text-sm')}
+      >
+        <IconPlus className='mr-2 h-4 w-4' /> Add Client
+      </Link>
+
+      {/* <Button
           aria-label='Toggle columns'
           role='combobox'
           variant='outline'
@@ -52,8 +62,8 @@ export function DataTableViewOptions<TData>({
           <Settings2 />
           View
           <CaretSortIcon className='ml-auto opacity-50' />
-        </Button>
-      </PopoverTrigger>
+        </Button> */}
+      {/* </PopoverTrigger> */}
       <PopoverContent align='end' className='w-44 p-0'>
         <Command>
           <CommandInput placeholder='Search columns...' />

@@ -11,26 +11,43 @@ import { useBreadcrumbs } from '@/hooks/use-breadcrumbs';
 import { IconSlash } from '@tabler/icons-react';
 import { Fragment } from 'react';
 
+type DisplayCrumb = { title: string; link?: string };
+
 export function Breadcrumbs() {
   const items = useBreadcrumbs();
-  if (items.length === 0) return null;
+  if (!items || items.length === 0) return null;
+
+  // convert to display model
+  const base: DisplayCrumb[] = items.map((i) => ({
+    title: i.title,
+    link: i.link
+  }));
+
+  // keep index 0 & 1, skip index 2 (ID)
+  let displayItems: DisplayCrumb[] = base;
+  if (base.length >= 3) {
+    const keep = base.slice(0, 2);
+    const action = base[3] ?? { title: 'View' as const }; // link optional
+    displayItems = [...keep, action];
+  }
 
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        {items.map((item, index) => (
-          <Fragment key={item.title}>
-            {index !== items.length - 1 && (
-              <BreadcrumbItem className='hidden md:block'>
-                <BreadcrumbLink href={item.link}>{item.title}</BreadcrumbLink>
-              </BreadcrumbItem>
-            )}
-            {index < items.length - 1 && (
-              <BreadcrumbSeparator className='hidden md:block'>
-                <IconSlash />
-              </BreadcrumbSeparator>
-            )}
-            {index === items.length - 1 && (
+        {displayItems.map((item, index) => (
+          <Fragment key={`${item.title}-${index}`}>
+            {index !== displayItems.length - 1 ? (
+              <>
+                <BreadcrumbItem className='hidden md:block'>
+                  <BreadcrumbLink href={item.link ?? '#'}>
+                    {item.title}
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className='hidden md:block'>
+                  <IconSlash />
+                </BreadcrumbSeparator>
+              </>
+            ) : (
               <BreadcrumbPage>{item.title}</BreadcrumbPage>
             )}
           </Fragment>
