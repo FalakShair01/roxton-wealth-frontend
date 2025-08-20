@@ -1,6 +1,7 @@
 'use client';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
+import { Eye } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,15 +42,19 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
           <DropdownMenuItem
-            onClick={() => router.push(`/dashboard/product/${data.id}`)}
+            onClick={() => router.push(`/dashboard/client/${data.id}`)}
+          >
+            <Eye className='mr-2 h-4 w-4' /> View
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => router.push(`/dashboard/client/${data.id}/update`)}
           >
             <IconEdit className='mr-2 h-4 w-4' /> Update
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setOpen(true)}>
+          {/* <DropdownMenuItem onClick={() => setOpen(true)}>
             <IconTrash className='mr-2 h-4 w-4' /> Delete
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
         </DropdownMenuContent>
       </DropdownMenu>
     </>

@@ -1,5 +1,8 @@
 'use client';
 import { DotsHorizontalIcon } from '@radix-ui/react-icons';
+import { Settings2 } from 'lucide-react';
+import { CaretSortIcon } from '@radix-ui/react-icons';
+
 import * as React from 'react';
 
 import {
@@ -33,7 +36,7 @@ export function ColumnActions({
 }) {
   const [name, setName] = React.useState(title);
   const updateCol = useTaskStore((state) => state.updateCol);
-  const removeCol = useTaskStore((state) => state.removeCol);
+  // const removeCol = useTaskStore((state) => state.removeCol);
   const [editDisable, setIsEditDisable] = React.useState(true);
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -96,7 +99,7 @@ export function ColumnActions({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <Button
+            {/* <Button
               variant='destructive'
               onClick={() => {
                 // yes, you have to set a timeout
@@ -108,6 +111,18 @@ export function ColumnActions({
               }}
             >
               Delete
+            </Button> */}
+
+            <Button
+              aria-label='Toggle columns'
+              role='combobox'
+              variant='outline'
+              size='sm'
+              className='ml-auto hidden h-8 lg:flex'
+            >
+              <Settings2 />
+              View
+              <CaretSortIcon className='ml-auto opacity-50' />
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
