@@ -4,9 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 // --- very light-weight hashing to avoid plain text in storage (NOT for prod)
 const hash = (s: string) =>
-  typeof window === 'undefined'
-    ? s
-    : window.btoa(unescape(encodeURIComponent(s)));
+  typeof window === 'undefined' ? s : btoa(unescape(encodeURIComponent(s)));
 
 type StoredUser = {
   id: string;
@@ -16,7 +14,7 @@ type StoredUser = {
 };
 
 const USERS_KEY = 'app_users';
-const SESSION_KEY = 'app_session';
+const SESSION_KEY = 'userId';
 
 function loadUsers(): StoredUser[] {
   if (typeof window === 'undefined') return [];
@@ -37,18 +35,33 @@ function setSession(userId: string) {
 }
 
 export function useLocalAuth() {
+  const [currentUser, setCurrentUser] = useState<StoredUser | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(true);
   const [pending, setPending] = useState(false);
 
   // Load auth state from localStorage
-  useEffect(() => {
+  // useEffect(() => {
+  //   const stored = localStorage.getItem('userId');
+  //   if (stored) {
+  //     console.log('Restoring userId from localStorage:', stored);
+  //     setUserId(stored);
+  //   }
+  //   setIsLoaded(true);
+  // }, []);
+
+  const auth = useCallback(() => {
     const stored = localStorage.getItem('userId');
     if (stored) {
+      console.log('Restoring userId from localStorage:', stored);
       setUserId(stored);
+      return { userId: stored };
     }
-    setIsLoaded(true);
+    // setIsLoaded(true);
+    return { userId: null };
   }, []);
+
+  const isSignedIn = !!currentUser;
 
   const signUp = useMemo(
     () => ({
@@ -57,18 +70,19 @@ export function useLocalAuth() {
        * Returns { status: 'complete', createdSessionId: string } on success
        */
       create: async ({
-        emailAddress,
+        email,
         password
       }: {
-        emailAddress: string;
+        email: string;
         password: string;
       }) => {
         setPending(true);
         await new Promise((r) => setTimeout(r, 250)); // small UX delay
         try {
           const users = loadUsers();
+          console.log('Available Users:', users);
           const exists = users.some(
-            (u) => u.email.toLowerCase() === emailAddress.toLowerCase()
+            (u) => u.email.toLowerCase() === email.toLowerCase()
           );
           if (exists) {
             const err = new Error('Email already registered') as any;
@@ -78,7 +92,7 @@ export function useLocalAuth() {
 
           const user: StoredUser = {
             id: crypto.randomUUID(),
-            email: emailAddress,
+            email,
             passwordHash: hash(password),
             createdAt: Date.now()
           };
@@ -97,26 +111,24 @@ export function useLocalAuth() {
 
   const setActive = useCallback(async ({ session }: { session: string }) => {
     setSession(session);
+    setUserId(session);
   }, []);
 
   const signIn = useCallback(
-    async ({
-      emailAddress,
-      password
-    }: {
-      emailAddress: string;
-      password: string;
-    }) => {
+    async ({ email, password }: { email: string; password: string }) => {
       const users = loadUsers();
+      console.log('Available Users:', users);
       const user = users.find(
-        (u) => u.email.toLowerCase() === emailAddress.toLowerCase()
+        (u) => u.email.toLowerCase() === email.toLowerCase()
       );
       if (!user || user.passwordHash !== hash(password)) {
         throw Object.assign(new Error('Invalid credentials'), {
           errors: [{ message: 'Invalid email or password' }]
         });
       }
+      setCurrentUser(user);
       setSession(user.id);
+      setUserId(user.id);
       return { status: 'complete' as const, createdSessionId: user.id };
     },
     []
@@ -124,6 +136,7 @@ export function useLocalAuth() {
 
   const signOut = useCallback(() => {
     localStorage.removeItem(SESSION_KEY);
+    setUserId(null);
   }, []);
 
   const getCurrentUser = useCallback(() => {
@@ -134,5 +147,16 @@ export function useLocalAuth() {
     return users.find((u) => u.id === id) ?? null;
   }, []);
 
-  return { signUp, signIn, signOut, getCurrentUser, isLoaded, pending };
+  return {
+    isSignedIn,
+    signUp,
+    signIn,
+    signOut,
+    getCurrentUser,
+    auth,
+    isLoaded,
+    pending,
+    setActive,
+    userId
+  };
 }

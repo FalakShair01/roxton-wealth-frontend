@@ -1,12 +1,19 @@
-import { auth } from '@clerk/nextjs/server';
-import { redirect } from 'next/navigation';
+'use client';
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { useRouter } from 'next/navigation';
+import { selectIsSignedIn, selectAuthLoaded } from '@/store/slices/auth';
 
-export default async function Page() {
-  const { userId } = await auth();
+export default function Page() {
+  const router = useRouter();
+  const loaded = useSelector(selectAuthLoaded);
+  const signedIn = useSelector(selectIsSignedIn);
+  console.log('Auth loaded:', loaded, 'Signed in:', signedIn);
 
-  // if (userId) {
-  //   return redirect('/auth/sign-in');
-  // } else {
-  redirect('/dashboard/client');
-  // }
+  useEffect(() => {
+    // if (!loaded) return;
+    router.replace(signedIn ? '/dashboard/client' : '/auth/sign-in');
+  }, [loaded, signedIn, router]);
+
+  return null;
 }
