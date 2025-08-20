@@ -54,7 +54,7 @@ export const makeStore = () =>
 
 export type AppStore = ReturnType<typeof makeStore>;
 export type RootState = ReturnType<typeof rootReducer>;
-export type AppDispatch = ReturnType<AppStore['dispatch']>;
+export type AppDispatch = typeof store.dispatch;
 
 // Create store + persistor singletons for CSR usage
 export const store = makeStore();
