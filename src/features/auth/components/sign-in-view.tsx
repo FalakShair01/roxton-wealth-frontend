@@ -1,44 +1,33 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSignIn, useAuth } from '@clerk/nextjs';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { selectAuthStatus, selectAuthError, signIn } from '@/store/slices/auth';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
 export default function SignInViewPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const { signIn, isLoaded } = useSignIn();
-  const { isSignedIn } = useAuth();
+  const dispatch = useAppDispatch();
+  const status = useAppSelector(selectAuthStatus);
+  const error = useAppSelector(selectAuthError);
   const router = useRouter();
 
-  useEffect(() => {
-    if (isSignedIn) {
-      router.push('/dashboard');
-    }
-  }, [isSignedIn]);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLoaded) return;
 
     try {
-      const result = await signIn.create({
-        identifier: email,
-        password
-      });
-
-      if (result.status === 'complete') {
-        window.location.href = '/dashboard';
-      } else {
-        console.log(result);
-      }
+      await dispatch(signIn({ email, password })).unwrap();
+      // router.push('/dashboard/client');
+      alert('Login successful');
+      router.replace('/dashboard/client');
     } catch (err: any) {
-      setError(err.errors?.[0]?.message || 'Login failed');
+      // setError(err.errors?.[0]?.message || 'Login failed');
     }
   };
 
@@ -60,7 +49,7 @@ export default function SignInViewPage() {
             </p>
           </div>
 
-          <Button variant='outline' className='h-10 w-full bg-gray-100'>
+          {/* <Button variant='outline' className='h-10 w-full bg-gray-100'>
             Continue with Google
           </Button>
 
@@ -70,7 +59,7 @@ export default function SignInViewPage() {
               Or continue with
             </span>
             <div className='bg-border h-px flex-1' />
-          </div>
+          </div> */}
           <form className='w-full space-y-6' onSubmit={handleLogin}>
             <div>
               <Label htmlFor='email'>Email Address</Label>
@@ -107,7 +96,7 @@ export default function SignInViewPage() {
 
             {error && <p className='text-sm text-red-500'>{error}</p>}
 
-            <Button type='submit' className='h-10 w-full bg-black'>
+            <Button type='submit' className='bg-primary h-10 w-full'>
               Login
             </Button>
           </form>

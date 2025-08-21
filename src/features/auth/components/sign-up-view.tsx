@@ -1,45 +1,56 @@
 'use client';
 
 import { useState } from 'react';
-import { useSignUp } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { selectAuthStatus, selectAuthError, signUp } from '@/store/slices/auth';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
-export default function SignUpViewPage({ stars }: { stars: number }) {
+export default function SignUpViewPage() {
+  const dispatch = useAppDispatch();
+  const status = useAppSelector(selectAuthStatus);
+  const errorMessage = useAppSelector(selectAuthError);
+  const router = useRouter();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const { signUp, isLoaded, setActive } = useSignUp();
-  const router = useRouter();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLoaded) return;
 
+    if (!email || !password) {
+      setError('Email and password are required');
+      return;
+    }
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
     try {
-      const result = await signUp.create({
-        emailAddress: email,
-        password
-      });
+      // const result = await signUp.create({
+      //   email,
+      //   password
+      // });
 
-      if (result.status === 'complete' && result.createdSessionId) {
-        await setActive({ session: result.createdSessionId });
-        alert('Registration successful! Redirecting to dashboard...');
-        router.push('/dashboard');
-      } else {
-        setError('Please verify your email.');
-      }
+      // if (result.status === 'complete' && result.createdSessionId) {
+      //   await setActive({ session: result.createdSessionId });
+      //   alert('Registration successful! Redirecting to dashboard...');
+      //   router.push('/dashboard');
+      // } else {
+      //   setError('Unexpected state. Please try again.');
+      // }
+      await dispatch(signUp({ email, password })).unwrap();
+      router.push('/dashboard/client');
     } catch (err: any) {
-      setError(err.errors?.[0]?.message || 'Registration failed');
+      setError(
+        err?.errors?.[0]?.message || err?.message || 'Registration failed'
+      );
     }
   };
 
@@ -53,32 +64,12 @@ export default function SignUpViewPage({ stars }: { stars: number }) {
           </Link>
         </div>
 
-        <div className='mx-auto flex w-full max-w-md flex-col items-center justify-center space-y-6'>
+        <div className='w/full mx-auto flex max-w-md flex-col items-center justify-center space-y-6'>
           <div className='text-center'>
             <h1 className='mt-6 text-4xl'>Create your account</h1>
             <p className='text-muted-foreground mt-2 text-sm'>
               Please enter your details to register.
             </p>
-          </div>
-
-          <Button variant='outline' className='h-10 w-100 bg-gray-100'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              viewBox='0 0 488 512'
-              fill='currentColor'
-              className='mr-2 h-4 w-4'
-            >
-              <path d='M488 261.8c0-17.8-1.6-35-4.7-51.8H249v98h135.7c-5.9 31.8-23.6 58.7-50.1 76.6v63h80.9c47.3-43.5 74.5-107.7 74.5-185.8zM249 492c67 0 123.2-22.1 164.3-60l-80.9-63c-22.5 15.2-51.3 24.2-83.4 24.2-63.9 0-118-43.2-137.4-101.3H28.1v63.5C69.6 439 152.9 492 249 492zM111.6 295.9c-6.4-19.1-10-39.5-10-60.4s3.6-41.3 10-60.4v-63.5H28.1C10.1 152.5 0 199.5 0 235.5s10.1 83 28.1 123.9l83.5-63.5zM249 104.2c35.9 0 68.3 12.4 93.7 36.5l70.1-70.1C370.5 31.5 314.6 8 249 8 152.9 8 69.6 61 28.1 147.1l83.5 63.5C131 147.4 185.1 104.2 249 104.2z' />
-            </svg>
-            Continue with Google
-          </Button>
-
-          <div className='flex h-6 w-100 items-center gap-4'>
-            <div className='bg-border h-px flex-1' />
-            <span className='text-muted-foreground text-sm'>
-              Or continue with
-            </span>
-            <div className='bg-border h-px flex-1' />
           </div>
 
           <form className='w-100 space-y-6' onSubmit={handleRegister}>
@@ -91,6 +82,7 @@ export default function SignUpViewPage({ stars }: { stars: number }) {
                 className='mt-2 h-10 w-full text-sm'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete='email'
               />
             </div>
 
@@ -103,6 +95,7 @@ export default function SignUpViewPage({ stars }: { stars: number }) {
                 className='mt-2 h-10 w-full text-sm'
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete='new-password'
               />
             </div>
 
@@ -115,12 +108,16 @@ export default function SignUpViewPage({ stars }: { stars: number }) {
                 className='mt-2 h-10 w-full text-sm'
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete='new-password'
               />
             </div>
 
-            {error && <p className='text-sm text-red-500'>{error}</p>}
+            {error ||
+              (errorMessage && (
+                <p className='text-sm text-red-500'>{error || errorMessage}</p>
+              ))}
 
-            <Button type='submit' className='h-10 w-full bg-black'>
+            <Button type='submit' className='bg-primary h-10 w-full'>
               Register
             </Button>
           </form>

@@ -10,11 +10,21 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { UserAvatarProfile } from '@/components/user-avatar-profile';
-import { SignOutButton, useUser } from '@clerk/nextjs';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { selectAuth, signOut } from '@/store/slices/auth';
 import { useRouter } from 'next/navigation';
+
 export function UserNav() {
-  const { user } = useUser();
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector(selectAuth);
+  console.log('UserNav authUser:', user);
   const router = useRouter();
+
+  const handleSignOut = async () => {
+    await dispatch(signOut());
+    router.push('/auth/sign-in');
+  };
+
   if (user) {
     return (
       <DropdownMenu>
@@ -35,7 +45,7 @@ export function UserNav() {
                 {user.fullName}
               </p>
               <p className='text-muted-foreground text-xs leading-none'>
-                {user.emailAddresses[0].emailAddress}
+                {user.email}
               </p>
             </div>
           </DropdownMenuLabel>
@@ -49,9 +59,7 @@ export function UserNav() {
             <DropdownMenuItem>New Team</DropdownMenuItem> */}
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <SignOutButton redirectUrl='/auth/sign-in' />
-          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleSignOut}>Sign Out</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     );
