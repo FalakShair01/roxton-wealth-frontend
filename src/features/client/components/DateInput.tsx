@@ -61,7 +61,6 @@ export function DateInput({
         <Popover.Trigger
           className={cn(
             'flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm',
-            '!border-gray-700',
             hasError && 'border-red-500 focus:ring-red-500',
             disabled && 'cursor-not-allowed opacity-50'
           )}
