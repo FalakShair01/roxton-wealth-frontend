@@ -6,26 +6,22 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useLocalAuth } from '@/hooks/useLocalAuth';
-import { useDispatch, useSelector } from 'react-redux';
 import { selectAuthStatus, selectAuthError, signUp } from '@/store/slices/auth';
-import type { AppDispatch } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
 export default function SignUpViewPage() {
-  const dispatch = useDispatch<AppDispatch>();
-  const status = useSelector(selectAuthStatus);
-  const errorMessage = useSelector(selectAuthError);
+  const dispatch = useAppDispatch();
+  const status = useAppSelector(selectAuthStatus);
+  const errorMessage = useAppSelector(selectAuthError);
   const router = useRouter();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  // const { signUp, isLoaded, setActive } = useLocalAuth();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    // if (!isLoaded) return;
 
     if (!email || !password) {
       setError('Email and password are required');

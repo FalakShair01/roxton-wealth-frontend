@@ -6,15 +6,13 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useDispatch, useSelector } from 'react-redux';
 import { selectAuthStatus, selectAuthError, signIn } from '@/store/slices/auth';
-import type { AppDispatch } from '@/store';
-import { redirect } from 'next/navigation';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
 export default function SignInViewPage() {
-  const dispatch = useDispatch<AppDispatch>();
-  const status = useSelector(selectAuthStatus);
-  const error = useSelector(selectAuthError);
+  const dispatch = useAppDispatch();
+  const status = useAppSelector(selectAuthStatus);
+  const error = useAppSelector(selectAuthError);
   const router = useRouter();
 
   const [email, setEmail] = useState('');

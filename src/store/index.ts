@@ -13,25 +13,29 @@ import {
   REGISTER
 } from 'redux-persist';
 
-// Use a no-op storage on the server to avoid "window is not defined"
+// No-op storage for SSR (avoids "window is not defined")
 const createNoopStorage = () => ({
-  getItem: async () => null,
+  getItem: async () => null as unknown as string | null,
   setItem: async () => {},
   removeItem: async () => {}
 });
 
 // Use localStorage only in the browser
-const storage =
-  typeof window !== 'undefined'
-    ? (await import('redux-persist/lib/storage')).default
-    : createNoopStorage();
+function getStorage() {
+  if (typeof window === 'undefined') return createNoopStorage();
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const createWebStorage = require('redux-persist/lib/storage/createWebStorage')
+    .default as (type: 'local' | 'session') => Storage;
+  return createWebStorage('local');
+}
+
+const storage = getStorage();
 
 const rootReducer = combineReducers({
   auth
   // ...other slices
 });
 
-// Persist only what you need
 const persistConfig = {
   key: 'root',
   storage,
@@ -46,16 +50,17 @@ export const makeStore = () =>
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         serializableCheck: {
-          // Ignore redux-persist actions
           ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
         }
       })
   });
 
+// ---- Types
 export type AppStore = ReturnType<typeof makeStore>;
 export type RootState = ReturnType<typeof rootReducer>;
-export type AppDispatch = typeof store.dispatch;
+// ⬇️ Use makeStore to derive the dispatch type (works for SSR too)
+export type AppDispatch = ReturnType<typeof makeStore>['dispatch'];
 
-// Create store + persistor singletons for CSR usage
+// ---- CSR singletons (OK for App Router pages/components)
 export const store = makeStore();
 export const persistor = persistStore(store);

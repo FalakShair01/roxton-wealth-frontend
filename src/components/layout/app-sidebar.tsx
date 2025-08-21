@@ -45,9 +45,10 @@ import { usePathname, useRouter } from 'next/navigation';
 import * as React from 'react';
 import { Icons } from '../icons';
 import { OrgSwitcher } from '../org-switcher';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { selectAuth, signOut } from '@/store/slices/auth';
-import { AppDispatch } from '@/store';
+import { useAppDispatch } from '@/store/hooks';
+
 export const company = {
   name: 'Acme Inc',
   logo: IconPhotoUp,
@@ -61,7 +62,7 @@ const tenants = [
 ];
 
 export default function AppSidebar() {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
   const router = useRouter();
 
   const pathname = usePathname();

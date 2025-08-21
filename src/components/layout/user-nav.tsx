@@ -10,13 +10,13 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { UserAvatarProfile } from '@/components/user-avatar-profile';
-import { AppDispatch } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectAuth, signOut } from '@/store/slices/auth';
 import { useRouter } from 'next/navigation';
-import { useDispatch, useSelector } from 'react-redux';
+
 export function UserNav() {
-  const dispatch = useDispatch<AppDispatch>();
-  const { user } = useSelector(selectAuth);
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector(selectAuth);
   console.log('UserNav authUser:', user);
   const router = useRouter();
 
