@@ -154,129 +154,126 @@ export default function AddClientContent() {
   };
 
   return (
-    <>
-      <div className='flex items-center justify-between'>
-        <h2 className='text-2xl font-bold tracking-tight'>{`${title} ${subTitle ? ' / ' + subTitle : ''}`}</h2>
-      </div>
-
-      <div className='flex min-h-screen flex-row gap-4'>
-        {/* Left: Step Form (70%) */}
-        <div
-          className='h-[calc(100vh-var(--header-h))] w-[70%] min-w-[70%]'
-          style={{
-            // set this to your actual header height
-            // @ts-ignore
-            '--header-h': '120px'
-          }}
-        >
-          <FormProvider {...methods}>
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className='flex h-full flex-col'
-            >
-              <div className='flex h-full flex-col rounded-xl border p-6 shadow-sm backdrop-blur'>
-                {/* scrollable content fills remaining space */}
-                <div className='min-h-0 flex-1 overflow-y-auto pr-2'>
-                  <div className='grid gap-5 sm:grid-cols-2 lg:grid-cols-3 [@media(min-width:1440px)]:grid-cols-4'>
-                    {Array.isArray(currentFields.fields) &&
-                      (
-                        currentFields.fields as (
-                          | FormField
-                          | { sub_title: string; fields: FormField[] }
-                        )[]
+    <div className='flex min-h-screen flex-row gap-4'>
+      {/* Left: Step Form (70%) */}
+      <div
+        className='h-[calc(100vh-var(--header-h))] w-[70%] min-w-[70%]'
+        style={{
+          // set this to your actual header height
+          // @ts-ignore
+          '--header-h': '100px'
+        }}
+      >
+        <FormProvider {...methods}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className='flex h-full flex-col'
+          >
+            <div className='flex h-full flex-col rounded-xl border p-6 shadow-sm backdrop-blur'>
+              <div className='mb-6 flex items-center justify-between'>
+                <h2 className='text-2xl font-bold tracking-tight'>{`${title} ${subTitle ? ' / ' + subTitle : ''}`}</h2>
+              </div>
+              {/* scrollable content fills remaining space */}
+              <div className='min-h-0 flex-1 overflow-y-auto pr-2'>
+                <div className='grid gap-5 sm:grid-cols-2 lg:grid-cols-3 [@media(min-width:1440px)]:grid-cols-4'>
+                  {Array.isArray(currentFields.fields) &&
+                    (
+                      currentFields.fields as (
+                        | FormField
+                        | { sub_title: string; fields: FormField[] }
+                      )[]
+                    )
+                      .filter(isFormField)
+                      .map((field) => (
+                        <SmartInput
+                          key={field.name}
+                          field={{
+                            ...field,
+                            defaultValue: getValues(field.name as string),
+                            error: String(
+                              (errors as any)[field.name]?.message ?? ''
+                            ),
+                            onChange: (val) =>
+                              setValue(field.name as string, val, {
+                                shouldValidate: true
+                              })
+                          }}
+                        />
+                      ))}
+                  {currentFields.sections &&
+                    currentFields.sections[subStep].fields?.map(
+                      (field: FormField) => (
+                        <SmartInput
+                          key={field.name}
+                          field={{
+                            ...field,
+                            defaultValue: getValues(field.name as string),
+                            error: String(
+                              (errors as any)[field.name]?.message ?? ''
+                            ),
+                            onChange: (val) =>
+                              setValue(field.name as string, val, {
+                                shouldValidate: true
+                              })
+                          }}
+                        />
                       )
-                        .filter(isFormField)
-                        .map((field) => (
-                          <SmartInput
-                            key={field.name}
-                            field={{
-                              ...field,
-                              defaultValue: getValues(field.name as string),
-                              error: String(
-                                (errors as any)[field.name]?.message ?? ''
-                              ),
-                              onChange: (val) =>
-                                setValue(field.name as string, val, {
-                                  shouldValidate: true
-                                })
-                            }}
-                          />
-                        ))}
-                    {currentFields.sections &&
-                      currentFields.sections[subStep].fields?.map(
-                        (field: FormField) => (
-                          <SmartInput
-                            key={field.name}
-                            field={{
-                              ...field,
-                              defaultValue: getValues(field.name as string),
-                              error: String(
-                                (errors as any)[field.name]?.message ?? ''
-                              ),
-                              onChange: (val) =>
-                                setValue(field.name as string, val, {
-                                  shouldValidate: true
-                                })
-                            }}
-                          />
-                        )
-                      )}
-                  </div>
+                    )}
+                </div>
 
-                  {/* actions (optional: make sticky so they’re always visible) */}
-                  <div className='sticky bottom-0 mt-6 pt-4 backdrop-blur'>
-                    <div className='flex items-center justify-between'>
-                      {step > 0 || subStep > 0 ? (
-                        <Button
-                          type='button'
-                          variant='secondary'
-                          onClick={handleBack}
-                          className='rounded-lg !bg-gray-200 text-gray-800'
-                        >
-                          Back
-                        </Button>
-                      ) : (
-                        <div />
-                      )}
+                {/* actions (optional: make sticky so they’re always visible) */}
+                <div className='sticky bottom-0 mt-6 pt-4 backdrop-blur'>
+                  <div className='flex items-center justify-between'>
+                    {step > 0 || subStep > 0 ? (
+                      <Button
+                        type='button'
+                        variant='secondary'
+                        onClick={handleBack}
+                        className='rounded-lg !bg-gray-200 text-gray-800'
+                      >
+                        Back
+                      </Button>
+                    ) : (
+                      <div />
+                    )}
 
-                      {step < FORM_DATA.length - 1 ? (
-                        <Button
-                          type='button'
-                          onClick={handleNext}
-                          className='bg-primary mr-2 rounded-lg text-white'
-                        >
-                          Next
-                        </Button>
-                      ) : (
-                        <Button
-                          type='submit'
-                          className='bg-primary rounded-lg text-white'
-                        >
-                          Submit
-                        </Button>
-                      )}
-                    </div>
+                    {step < FORM_DATA.length - 1 ? (
+                      <Button
+                        type='button'
+                        onClick={handleNext}
+                        className='bg-primary mr-2 rounded-lg text-white'
+                      >
+                        Next
+                      </Button>
+                    ) : (
+                      <Button
+                        type='submit'
+                        className='bg-primary rounded-lg text-white'
+                      >
+                        Submit
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
-            </form>
-          </FormProvider>
-        </div>
+            </div>
+          </form>
+        </FormProvider>
+      </div>
 
-        {/* Right: Course Progress (30%) */}
-        <div
-          className='h-[calc(100vh-var(--header-h))] w-[30%] min-w-[30%]'
-          style={{
-            // set this to your actual header height
-            // @ts-ignore
-            '--header-h': '120px'
-          }}
-        >
-          <div className='grid h-full grid-cols-1 gap-4'>
-            <CourseProgressCard step={step} subStep={subStep} />
-          </div>
+      {/* Right: Course Progress (30%) */}
+      <div
+        className='h-[calc(100vh-var(--header-h))] w-[30%] min-w-[30%]'
+        style={{
+          // set this to your actual header height
+          // @ts-ignore
+          '--header-h': '100px'
+        }}
+      >
+        <div className='grid h-full grid-cols-1 gap-4'>
+          <CourseProgressCard step={step} subStep={subStep} />
         </div>
       </div>
-    </>
+    </div>
   );
 }
