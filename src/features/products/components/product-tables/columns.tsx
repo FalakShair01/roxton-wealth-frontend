@@ -1,16 +1,16 @@
-'use client';
-import { Badge } from '@/components/ui/badge';
-import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
-import { Product } from '@/constants/data';
-import { Column, ColumnDef } from '@tanstack/react-table';
-import {
-  // CheckCircle2,
-  Text
-  //  XCircle
-} from 'lucide-react';
-// import Image from 'next/image';
-import { CellAction } from './cell-action';
-// import { CATEGORY_OPTIONS } from './options';
+// 'use client';
+// import { Badge } from '@/components/ui/badge';
+// import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
+// import { Product } from '@/constants/data';
+// import { Column, ColumnDef } from '@tanstack/react-table';
+// import {
+//   // CheckCircle2,
+//   Text
+//   //  XCircle
+// } from 'lucide-react';
+// // import Image from 'next/image';
+// import { CellAction } from './cell-action';
+// // import { CATEGORY_OPTIONS } from './options';
 
 // export const columns: ColumnDef<Product>[] = [
 //   {
@@ -83,6 +83,38 @@ import { CellAction } from './cell-action';
 //   }
 // ];
 
+'use client';
+
+import { Badge } from '@/components/ui/badge';
+import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
+import { Product } from '@/constants/data';
+import { Column, ColumnDef } from '@tanstack/react-table';
+import { Text, CheckCircle2, Clock3, XCircle, HelpCircle } from 'lucide-react';
+import { CellAction } from './cell-action';
+
+/** Map status -> icon + color + normalized label */
+function getStatusMeta(raw: unknown) {
+  const s = String(raw ?? '')
+    .trim()
+    .toLowerCase();
+  switch (s) {
+    case 'active':
+      return { Icon: CheckCircle2, color: 'text-green-600', label: 'Active' };
+    case 'pending':
+    case 'in progress':
+      return { Icon: Clock3, color: 'text-yellow-600', label: 'Pending' };
+    case 'inactive':
+    case 'blocked':
+      return { Icon: XCircle, color: 'text-red-600', label: 'Inactive' };
+    default:
+      return {
+        Icon: HelpCircle,
+        color: 'text-muted-foreground',
+        label: raw ? String(raw) : 'Unknown'
+      };
+  }
+}
+
 export const columns: ColumnDef<Product>[] = [
   {
     accessorKey: 'surname',
@@ -117,11 +149,20 @@ export const columns: ColumnDef<Product>[] = [
   {
     accessorKey: 'client_status',
     header: 'Status',
-    cell: ({ cell }) => (
-      <Badge variant='outline' className='capitalize'>
-        {cell.getValue<Product['client_status']>()}
-      </Badge>
-    )
+    cell: ({ cell }) => {
+      const raw = cell.getValue<Product['client_status']>();
+      const { Icon, color, label } = getStatusMeta(raw);
+
+      return (
+        <Badge
+          variant='outline'
+          className='inline-flex items-center gap-2 capitalize'
+        >
+          <Icon className={`h-4 w-4 ${color}`} aria-hidden />
+          <span>{label}</span>
+        </Badge>
+      );
+    }
   },
   {
     accessorKey: 'adviser_name',
